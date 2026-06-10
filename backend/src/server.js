@@ -66,8 +66,8 @@ app.get(
 
 connectDB().then(()=>{
 
-    app.listen(5001, () => {
-        console.log("server started at PORT: 5001")
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
 
 });
