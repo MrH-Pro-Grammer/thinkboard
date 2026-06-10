@@ -1,6 +1,7 @@
 import express from "express"
 import dotenv from "dotenv";
-import cors from "cors"
+import path from "path";
+import cors from "cors";
 
 import notesRoutes from "./routes/notesRoutes.js"
 import { connect } from "mongoose"
@@ -13,14 +14,19 @@ console.log(process.env.MONGO_URI);
 
 const app = express()
 const PORT = process.env.POR || 5001;
+const __dirname = path.resolve();
 
 
 //middleware
-app.use(express.json())
-app.use(cors({
-    origin:"http://localhost:5173",
-}));
-app.use(rateLimiter);
+
+if(process.env.NODE_ENV !== "production"){
+
+    app.use(cors({
+        origin:"http://localhost:5173",
+    }));
+}
+    app.use(express.json())
+    app.use(rateLimiter);
 /******* */
 //Simple custom middlewear
 // app.use((req,res,next)=>{
@@ -30,6 +36,17 @@ app.use(rateLimiter);
 /******* */
 // instead of hardcoding /api/notes
 app.use("/api/notes", notesRoutes)
+
+//express middlewear
+//render.com
+if(process.env.NODE_ENV === "production"){
+    app.use(express.static(path.join(__dirname,"../frontend/thinkboard/dist")));
+
+app.get("*",(req,res)=>{
+    res.sendFile(path.join(__dirname,"../frontend/thinkboard","dist","index.html"))
+})
+}
+
 // app.get("/api/notes", (req,res)=>{
 //     res.status(200).send("you got 50 Notes");
 // })
