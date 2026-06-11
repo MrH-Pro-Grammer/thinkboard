@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
-import { fileURLToPath } from "url";
 
 import notesRoutes from "./routes/notesRoutes.js";
 import { connectDB } from "./config/db.js";
@@ -12,8 +11,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
 
 // middleware
 if (process.env.NODE_ENV !== "production") {
@@ -35,12 +33,10 @@ app.use(rateLimiter);
 app.use("/api/notes", notesRoutes);
 
 if (process.env.NODE_ENV === "production") {
-  const distPath = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.use(express.static(distPath));
-
-  app.use((req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
 
